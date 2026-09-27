@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resell Guys | Vinted Style</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --vinted-green: #09b1ba;
+            --vinted-green-hover: #07969e;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --border: #2c2c2c;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        /* Vinted Navbar */
+        nav {
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 5%;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--vinted-green);
+            cursor: pointer;
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 400px;
+            margin: 0 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            background: #2a2a2a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-icon-btn {
+            background: #2a2a2a;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .nav-icon-btn:hover {
+            border-color: var(--vinted-green);
+            color: var(--vinted-green);
+        }
+
+        .btn-sell {
+            background: var(--vinted-green);
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-sell:hover {
+            background: var(--vinted-green-hover);
+        }
+
+        /* Hlavní kontejner */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Filtrovací lišta */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .filter-chip:hover, .filter-chip.active {
+            border-color: var(--vinted-green);
+            color: var(--vinted-green);
+        }
+
+        /* Mřížka produktů */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .item-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--vinted-green);
+        }
+
+        .item-img {
+            width: 100%;
+            height: 200px;
+            background: #252525;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .item-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            padding: 12px;
+        }
+
+        .item-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .item-size {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .item-title {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Modální okna (univerzální) */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid var(--border);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: white;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Chat styl */
+        .chat-box {
+            background: #151515;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            height: 150px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-message {
+            background: #262626;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            max-width: 80%;
+        }
+
+        .chat-message.me {
+            background: var(--vinted-green);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .wallet-stats {
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .wallet-stats p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .wallet-stats h2 {
+            color: var(--vinted-green);
+        }
+
+        /* Profil styl */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            background: #252525;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            background: var(--vinted-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigace -->
+    <nav>
+        <div class="logo" onclick="location.reload()">ResellGuys</div>
+        <div class="search-bar">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchInput" placeholder="Hledat v katalogu..." oninput="renderCatalog()">
+        </div>
+        <div class="nav-actions">
+            <button class="nav-icon-btn" onclick="openProfileModal()" title="Můj Profil"><i class="fa-solid fa-user"></i></button>
+            <button class="nav-icon-btn" onclick="openWalletPinModal()" title="Admin Peněženka"><i class="fa-solid fa-wallet"></i></button>
+            <button class="nav-icon-btn" onclick="openMessagesModal()" title="Zprávy"><i class="fa-solid fa-comments"></i></button>
+            <button class="btn-sell" onclick="openSellModal()"><i class="fa-solid fa-plus"></i> Prodat</button>
+        </div>
+    </nav>
+
+    <!-- Obsah -->
+    <div class="container">
+        <div class="filters">
+            <div class="filter-chip active" onclick="setCategory('all', this)">Vše</div>
+            <div class="filter-chip" onclick="setCategory('sneakers', this)">Sneakers</div>
+            <div class="filter-chip" onclick="setCategory('hoodies', this)">Mikiny & Bundy</div>
+            <div class="filter-chip" onclick="setCategory('shorts', this)">Kraťasy & Kalhoty</div>
+        </div>
+
+        <div class="catalog-grid" id="catalogGrid"></div>
+    </div>
+
+    <!-- 1. Modální okno: MŮJ PROFIL -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="profile-header">
+                <div class="profile-avatar">B</div>
+                <div>
+                    <h3 style="margin: 0; color: white;">Boris</h3>
+                    <p style="color: var(--vinted-green); font-size: 0.85rem;">Ověřený prodejce & Admin</p>
+                </div>
+            </div>
+            <h4 style="font-size: 1rem; margin-bottom: 10px;"><i class="fa-solid fa-box"></i> Moje vystavené kousky</h4>
+            <div id="myItemsList" style="display: flex; flex-direction: column; gap: 10px; max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
+                <!-- Sem se vygenerují uživatelovy inzeráty -->
+            </div>
+            <button class="btn-sell" style="width: 100%; background: #333;" onclick="closeModal('profileModal')">Zavřít</button>
+        </div>
+    </div>
+
+    <!-- 2. Modální okno: PIN KÓD PRO PENĚŽENKU -->
+    <div class="modal" id="walletPinModal">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <h3><i class="fa-solid fa-lock" style="color: var(--vinted-green);"></i> Admin přístup</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Zadej PIN kód pro otevření peněženky:</p>
+            <div class="form-group">
+                <input type="password" id="walletPinInput" placeholder="Zadej PIN" style="text-align: center; font-size: 1.2rem; letter-spacing: 3px;">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sell" style="flex: 1;" onclick="checkWalletPin()">Potvrdit</button>
+                <button class="btn-sell" style="flex: 1; background: #333;" onclick="closeModal('walletPinModal')">Zrušit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Modální okno: ADMIN PENĚŽENKA & VISA KARTA -->
+    <div class="modal" id="walletModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-wallet" style="color: var(--vinted-green);"></i> Administrátorská Peněženka</h3>
+            
+            <div class="wallet-stats">
+                <p>Celkový obrat prodejů:</p>
+                <h2 id="totalTurnover">0 Kč</h2>
+                <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 0;">
+                <p>Tvůj zisk (20 % z prodejů):</p>
+                <h2 id="myCommission" style="color: #10b981;">0 Kč</h2>
+            </div>
+
+            <div class="form-group">
+                <label>Číslo Visa karty / IBAN účtu pro výplatu</label>
+                <input type="text" id="bankCard" placeholder="4000 1234 5678 9010 nebo CZ65...">
+            </div>
+            <div class="form-group">
+                <label>Jméno majitele účtu</label>
+                <input type="text" id="bankOwner" value="Boris" placeholder="Boris ...">
+            </div>
+
+            <button class="btn-sell" style="width: 100%; margin-top: 5px;" onclick="saveWalletSettings()">Uložit údaje a vyplatit</button>
+            
+            <div class="modal-actions">
+                <button class="btn-sell" style="width: 100%; background: #333;" onclick="closeModal('walletModal')">Zavřít</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Modální okno: PŘIDAT INZERÁT -->
+    <div class="modal" id="sellModal">
+        <div class="modal-content">
+            <h3>Vystavit nový kousek</h3>
+            <div class="form-group">
+                <label>Název položky</label>
+                <input type="text" id="itemName" placeholder="např. Nike Shox TL">
+            </div>
+            <div class="form-group">
+                <label>Cena (Kč)</label>
+                <input type="number" id="itemPrice" placeholder="4500">
+            </div>
+            <div class="form-group">
+                <label>Velikost</label>
+                <input type="text" id="itemSize" placeholder="EU 40 / XL">
+            </div>
+            <div class="form-group">
+                <label>Kategorie</label>
+                <select id="itemCategory">
+                    <option value="sneakers">Sneakers</option>
+                    <option value="hoodies">Mikiny & Bundy</option>
+                    <option value="shorts">Kraťasy & Kalhoty</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Popisek (stav, detaily...)</label>
+                <textarea id="itemDesc" placeholder="Stav 10/10, kupováno na ofic. webu, originální krabice..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Fotka produktu</label>
+                <input type="file" id="itemImageFile" accept="image/*">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-sell" style="flex: 1;" onclick="addItem()">Vystavit</button>
+                <button class="btn-sell" style="flex: 1; background: #333;" onclick="closeModal('sellModal')">Zrušit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Modální okno: DETAIL PRODUKTU & CHAT -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <h3 id="detTitle">Název produktu</h3>
+            <p id="detSeller" style="color: var(--vinted-green); font-size: 0.85rem; margin-bottom: 10px;"></p>
+            <div class="item-img" id="detImgContainer" style="height: 220px; border-radius: 6px; margin-bottom: 15px;">
+                <i class="fa-solid fa-tag fa-3x" style="color:var(--text-muted)"></i>
+            </div>
+            <p id="detPrice" style="font-size: 1.2rem; font-weight: 700; color: var(--vinted-green); margin-bottom: 5px;"></p>
+            <p id="detSize" style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;"></p>
+            <p id="detDesc" style="font-size: 0.95rem; margin-bottom: 20px; background: #252525; padding: 10px; border-radius: 6px;"></p>
+            
+            <h4 style="font-size: 0.95rem; margin-bottom: 8px;"><i class="fa-solid fa-comments"></i> Zprávy / Chat s prodejcem</h4>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-message">Zdravím, je to ještě volné?</div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="chatInput" placeholder="Napiš zprávu..." style="flex:1; padding:8px; background:#2a2a2a; border:1px solid var(--border); border-radius:6px; color:white; outline:none;">
+                <button class="btn-sell" onclick="sendMessage()">Odeslat</button>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 15px;">
+                <button class="btn-sell" style="flex: 1; background: #ef4444;" onclick="simulateBuy()">Koupit kousek</button>
+                <button class="btn-sell" style="flex: 1; background: #333;" onclick="closeModal('detailModal')">Zavřít</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Modální okno: ZPRÁVY -->
+    <div class="modal" id="messagesModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-comments"></i> Všechny Zprávy</h3>
+            <div id="messagesListContainer">
+                <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 20px;">Žádné nové zprávy.</p>
+            </div>
+            <button class="btn-sell" style="width: 100%; background: #333; margin-top: 10px;" onclick="closeModal('messagesModal')">Zavřít</button>
+        </div>
+    </div>
+
+    <script>
+        // Katalog obsahuje jak uživatelovy kousky, tak předem nabídnuté kousky od ostatních lidí
+        let items = [
+            {
+                id: 1,
+                name: "Nike Shox TL Reflective",
+                price: 4200,
+                size: "EU 40",
+                category: "sneakers",
+                desc: "Stav 9/10, nošené jen párkrát, reflexní prvky svítí skvěle. S krabicí.",
+                image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=500&q=80",
+                seller: "Jakub_Resell",
+                isMine: false
+            },
+            {
+                id: 2,
+                name: "Hellstar Hoodie Black",
+                price: 3500,
+                size: "XL",
+                category: "hoodies",
+                desc: "Deadstock, nikdy nenošené, oversize střih, velmi těžká gramáž.",
+                image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=500&q=80",
+                seller: "Streetwear_CZ",
+                isMine: false
+            },
+            {
+                id: 3,
+                name: "Sp5der Pink Web Shorts",
+                price: 2800,
+                size: "L / XL",
+                category: "shorts",
+                desc: "Originální pavučinový design, koupeno přímo z dropsu.",
+                image: "https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=500&q=80",
+                seller: "HypeBeast99",
+                isMine: false
+            }
+        ];
+
+        let currentCategory = 'all';
+        let activeItem = null;
+        let totalRevenue = 0;
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            grid.innerHTML = '';
+
+            let filtered = items.filter(item => {
+                if (currentCategory !== 'all' && item.category !== currentCategory) return false;
+                if (searchQuery && !item.name.toLowerCase().includes(searchQuery) && !item.desc.toLowerCase().includes(searchQuery)) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align:center; padding: 40px;">Žádné inzeráty nenalezeny.</p>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                let imgContent = item.image ? `<img src="${item.image}" alt="">` : `<i class="fa-solid fa-box fa-2x" style="color:var(--text-muted)"></i>`;
+                
+                grid.innerHTML += `
+                    <div class="item-card" onclick="openDetail(${item.id})">
+                        <div class="item-img">
+                            ${imgContent}
+                        </div>
+                        <div class="item-details">
+                            <div class="item-price">${item.price.toLocaleString()} Kč</div>
+                            <div class="item-size">${item.size}</div>
+                            <div class="item-title">${item.name}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderProfileItems() {
+            const list = document.getElementById('myItemsList');
+            list.innerHTML = '';
+
+            let myItems = items.filter(i => i.isMine);
+
+            if (myItems.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 10px;">Zatím nic neprodáváš. Klikni nahoře na "Prodat".</p>';
+                return;
+            }
+
+            myItems.forEach(item => {
+                list.innerHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; padding: 10px; border-radius: 6px; border: 1px solid var(--border);">
+                        <div>
+                            <strong style="font-size: 0.9rem; color: white;">${item.name}</strong>
+                            <p style="font-size: 0.8rem; color: var(--vinted-green);">${item.price.toLocaleString()} Kč (${item.size})</p>
+                        </div>
+                        <button class="btn-sell" style="padding: 5px 10px; font-size: 0.8rem; background: #ef4444;" onclick="deleteItem(${item.id})">Smazat</button>
+                    </div>
+                `;
+            });
+        }
+
+        function openSellModal() { document.getElementById('sellModal').style.display = 'flex'; }
+        function openMessagesModal() { document.getElementById('messagesModal').style.display = 'flex'; }
+        function openProfileModal() {
+            renderProfileItems();
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+        
+        function openWalletPinModal() {
+            document.getElementById('walletPinInput').value = '';
+            document.getElementById('walletPinModal').style.display = 'flex';
+        }
+
+        function checkWalletPin() {
+            const enteredPin = document.getElementById('walletPinInput').value;
+            if (enteredPin === '1986') {
+                closeModal('walletPinModal');
+                document.getElementById('walletModal').style.display = 'flex';
+            } else {
+                alert('Nesprávný PIN kód!');
+                document.getElementById('walletPinInput').value = '';
+            }
+        }
+
+        function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+        function addItem() {
+            const name = document.getElementById('itemName').value;
+            const price = Number(document.getElementById('itemPrice').value);
+            const size = document.getElementById('itemSize').value;
+            const category = document.getElementById('itemCategory').value;
+            const desc = document.getElementById('itemDesc').value;
+            const fileInput = document.getElementById('itemImageFile');
+
+            if (!name || !price || !size) {
+                alert('Vyplň prosím název, cenu a velikost!');
+                return;
+            }
+
+            let newItem = {
+                id: Date.now(),
+                name, price, size, category,
+                desc: desc || 'Bez popisku.',
+                image: null,
+                seller: "Boris",
+                isMine: true
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    newItem.image = e.target.result;
+                    items.unshift(newItem);
+                    renderCatalog();
+                    closeModal('sellModal');
+                    clearSellForm();
+                    alert('Kousek byl úspěšně vystaven na tvůj profil i do katalogu!');
+                }
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                items.unshift(newItem);
+                renderCatalog();
+                closeModal('sellModal');
+                clearSellForm();
+                alert('Kousek byl úspěšně vystaven na tvůj profil i do katalogu!');
+            }
+        }
+
+        function deleteItem(id) {
+            items = items.filter(i => i.id !== id);
+            renderCatalog();
+            renderProfileItems();
+        }
+
+        function clearSellForm() {
+            document.getElementById('itemName').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemSize').value = '';
+            document.getElementById('itemDesc').value = '';
+            document.getElementById('itemImageFile').value = '';
+        }
+
+        function openDetail(id) {
+            activeItem = items.find(i => i.id === id);
+            if (!activeItem) return;
+
+            document.getElementById('detTitle').innerText = activeItem.name;
+            document.getElementById('detSeller').innerText = "Prodejce: " + activeItem.seller + (activeItem.isMine ? " (Ty)" : "");
+            document.getElementById('detPrice').innerText = activeItem.price.toLocaleString() + " Kč";
+            document.getElementById('detSize').innerText = "Velikost: " + activeItem.size;
+            document.getElementById('detDesc').innerText = activeItem.desc;
+
+            const imgContainer = document.getElementById('detImgContainer');
+            if (activeItem.image) {
+                imgContainer.innerHTML = `<img src="${activeItem.image}" style="width:100%; height:100%; object-fit:cover;">`;
+            } else {
+                imgContainer.innerHTML = `<i class="fa-solid fa-box fa-3x" style="color:var(--text-muted)"></i>`;
+            }
+
+            document.getElementById('detailModal').style.display = 'flex';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            if(!input.value.trim()) return;
+
+            const chatBox = document.getElementById('chatBox');
+            chatBox.innerHTML += `<div class="chat-message me">${input.value}</div>`;
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function simulateBuy() {
+            if(!activeItem) return;
+            totalRevenue += activeItem.price;
+            
+            let myCut = totalRevenue * 0.20;
+            document.getElementById('totalTurnover').innerText = totalRevenue.toLocaleString() + " Kč";
+            document.getElementById('myCommission').innerText = myCut.toLocaleString() + " Kč";
+
+            alert(`Úspěšně jsi zakoupil položku "${activeItem.name}" od prodejce ${activeItem.seller}! 20% provize (${Math.round(myCut)} Kč) byla přičtena do admin peněženky.`);
+            closeModal('detailModal');
+        }
+
+        function saveWalletSettings() {
+            const card = document.getElementById('bankCard').value;
+            const owner = document.getElementById('bankOwner').value;
+            if(!card) {
+                alert('Zadej číslo karty/účtu!');
+                return;
+            }
+            alert(`Údaje uloženy! Výplata zisku bude odeslána na kartu ${card} pro majitele ${owner || 'Boris'}.`);
+            closeModal('walletModal');
+        }
+
+        function setCategory(cat, element) {
+            currentCategory = cat;
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            renderCatalog();
+        }
+
+        renderCatalog();
+    </script>
+</body>
+</html>
